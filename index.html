@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>Demo effects in JS</title>
+		<script language="Javascript" src="effects.js"></script>
+	</head>
+	
+	<body>
+		<select id="size" onChange="sizeChanged()">
+			<option value="256">256x256</option>
+			<option value="512">512x512</option>
+			<option value="1024">1024x1024</option>
+		</select><br />
+		<canvas id="demo" width="256" height="256"></canvas><br />
+		<br />
+		<div id="status"><br /></div>
+		<input type="checkbox" onClick="toggle(rotozoom)" /> Rotozoom<br />
+		<input type="checkbox" onClick="toggle(rotoxor)" /> Rotoxor<br />
+		<input type="checkbox" onClick="toggle(rotospiral)" /> Rotospiral<br />
+		<input type="checkbox" onClick="toggle(rotoplasmaspiral)" /> Rotoplasmaspiral<br />
+		<input type="checkbox" onClick="toggle(rotofrag)" /> Rotofrag<br />
+		<input type="checkbox" onClick="toggle(rotofragspiral)" /> Rotofragspiral<br />
+		<input type="checkbox" onClick="toggle(plasma)" /> Plasma<br />
+		<input type="checkbox" onClick="toggle(metaballs)" /> Metaballs<br />
+		<input type="checkbox" onClick="toggle(starfield)" /> Starfield<br />
+	</body>
+</html>
