@@ -249,14 +249,15 @@ function rotoxor() {
 		canvas.setPos(0, 0);
 		for(var y = 0; y < height; ++y) {
 			for(var x = 0; x < width; ++x) {
-				var v = ((tx ^ ty) >> 9) & 0xFF;
+				var v = ((tx ^ ty) >> 10) & 0xFF;
+				v = ((v < 128) ? v + 128 : v - 128);
 				var nv = 255-v;
 				canvas.setPixel(
 						-1, 
 						-1, 
-						(((tx ^ ty) & 0x12000) == 0x12000) ? nv : v, 
-						(((tx | ty) & 0xF300) == 0xF300) ? v : nv, 
-						(((tx & ty) & 0x1C100) == 0x1C100) ? v : nv, 
+						(((tx ^ ty) & 0x32000) == 0x32000) ? v : nv, 
+						(((tx | ty) & 0x3F300) == 0x3F300) ? nv : v, 
+						(((tx & ty) & 0x3C100) == 0x3C100) ? nv : v, 
 						255
 					);
 				tx += cangle;
