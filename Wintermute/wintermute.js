@@ -31,8 +31,7 @@ function frame() {
 	for(a = 0; a < 360; a += 5) {
 		rad = degrad(a);
 		for(r = 10; r <= 100; r += 10) {
-			hax = tan((rad + step * r) * 0.001);
-			circle(sin(rad + r + step * iter) * r + sin(degrad(step)) * 100 + 256, cos(rad) * atan((rad + step * r) * 0.001) * hax * r + 256, sqrt(r));
+			circle(sin(rad + tan(step*0.0025)*r + step * iter) * r + 256, cos(rad) * r + 256, sqrt(r));
 		}
 	}
 	
