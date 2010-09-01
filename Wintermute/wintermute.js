@@ -42,12 +42,12 @@ function blur() {
 function frame() {
 	blur();
 	
-	ts = cos(degrad((step * 0.1) % 360));
+	ts = cos(degrad((step * 0.11) % 360));
 	for(a = 0; a < 360; a += 5) {
 		rad = degrad(a);
-		crad = cos(rad)+32;
-		for(r = 32; r <= 224; r += 32, crad += 32) {
-			circle(sin(rad + ts*r)*r, crad, 16);
+		crad = cos(rad);
+		for(r = 32; r <= 224; r += 32) {
+			circle(sin(rad + ts*r)*r, crad*r, 16);
 		}
 	}
 	
