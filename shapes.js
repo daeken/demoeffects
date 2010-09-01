@@ -16,30 +16,60 @@ function clear() {
 
 var rotation = 0;
 
-function gear(x, y, r, a, b, h, rot) {
+function start() {
 	ctx.beginPath();
+}
+
+var fx = null, fy = null;
+function point(x, y) {
+	if(fx == null) {
+		fx = x; fy = y;
+	}
 	
-	for(i = 0; i <= 360; ++i) {
-		ang = degrad(i);
+	ctx.lineTo(x, y);
+}
+
+function close() {
+	ctx.lineTo(fx, fy);
+	ctx.stroke();
+	
+	fx = fy = null;
+}
+
+function gear(x, y, r, a, b, slope, h, rot) {
+	start();
+	
+	b += slope;
+	
+	steps = 360;
+	if(steps % a != 0)
+		steps += a - (steps % a);
+	step = PI*2 / steps;
+	ang = -PI;
+	for(i = 0; i <= steps; ++i, ang += step) {
 		s = sin(ang);
 		c = cos(ang);
 		
 		d = r;
-		if(((i + rot) % a) < b)
+		off = (i + rot) % a;
+		if(off < slope)
+			continue;
+		else if(off < b)
 			d -= h;
+		else if(off < slope + b)
+			continue
 		
-		ctx.lineTo(x + s * d, y + c * d);
+		point(x + s * d, y + c * d);
 	}
 	
-	ctx.stroke();
+	close();
 }
 
 function frame() {
 	clear();
 	
-	gear(256, 256, 50, 15, 8, 8, rotation);
-	gear(200, 180, 50, 15, 9, 9, 360-rotation);
-	rotation = (rotation + 1) % 360;
+	gear(256, 256, 50, 50, 20, 5, 20, rotation);
+	rotation = (rotation + 3) % 360;
 	loop();
 }
 
