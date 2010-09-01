@@ -11,10 +11,15 @@ PI = Math.PI;
 function degrad(a) { return a * PI/180 }
 
 function circle(x, y, r) {
+	x += 256;
+	y += 256;
 	if(x < 0 || x >= 512 || y < 0 || y >= 512)
 		return;
 	ctx.beginPath();
+	//while(r > 1) {
 	ctx.arc(x, y, r, 0, Math.PI*2, true);
+	//	r >>= 1;
+	//}
 	ctx.stroke();
 }
 
@@ -22,16 +27,25 @@ function clear() {
 	ctx.clearRect(0, 0, cvs.width, cvs.height);
 }
 
-var step = 0;
-var iter = 0.1;
+var step = 450;
+
+function blur() {
+	cd = ctx.getImageData(0, 0, 512, 512);
+	for(var i = 0; i < 512 * 512 * 4; i += 4) {
+		cd.data[i+2] += 24;
+		cd.data[i+3] >>= 1;
+	}
+	ctx.putImageData(cd, 0, 0);
+}
 
 function frame() {
-	clear();
+	blur();
 	
+	ts = cos(degrad((step * 0.1) % 360));
 	for(a = 0; a < 360; a += 5) {
 		rad = degrad(a);
-		for(r = 10; r <= 100; r += 10) {
-			circle(sin(rad + tan(step*0.0025)*r + step * iter) * r + 256, cos(rad) * r + 256, sqrt(r));
+		for(r = 32; r <= 224; r += 32) {
+			circle(sin(rad + ts*r)*r, cos(rad)*r + sin(step * r * a)*4, 16);
 		}
 	}
 	
