@@ -31,7 +31,8 @@ var step = 450;
 
 function blur() {
 	cd = ctx.getImageData(0, 0, 512, 512);
-	for(var i = 0; i < 512 * 512 * 4; i += 4) {
+	e = 512 * 512 * 4;
+	for(var i = 0; i < e; i += 4) {
 		cd.data[i+2] += 24;
 		cd.data[i+3] >>= 1;
 	}
@@ -44,8 +45,9 @@ function frame() {
 	ts = cos(degrad((step * 0.1) % 360));
 	for(a = 0; a < 360; a += 5) {
 		rad = degrad(a);
-		for(r = 32; r <= 224; r += 32) {
-			circle(sin(rad + ts*r)*r, cos(rad)*r + sin(step * r * a)*4, 16);
+		crad = cos(rad)+32;
+		for(r = 32; r <= 224; r += 32, crad += 32) {
+			circle(sin(rad + ts*r)*r, crad, 16);
 		}
 	}
 	
