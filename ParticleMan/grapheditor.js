@@ -339,14 +339,18 @@ point.prototype.connect = function(raphael, other, sub) {
 	var sthis = this;
 	var editor = this.parent.parent;
 	
-	if(!this.multi && this.connections.length != 0)
-		return false;
+	if(sub !== true) {
+		if(!this.multi && this.connections.length != 0)
+			return false;
+		else if(!other.multi && other.connections.length != 0)
+			return false;
+	}
 	
 	this.connections.push(other);
 	this.circle.attr({fill: editor.theme.pointActive});
 	if(sub !== true) {
 		function remove() {
-			sthis.removeConnection(other);
+			sthis.removeConnection(raphael, other);
 			raphael.safari();
 		}
 		
