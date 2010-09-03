@@ -1,5 +1,9 @@
+var curPsystem;
 var interval;
-function stop() {
+function startParticles() {
+	interval = setInterval(function() { curPsystem.loop() }, 1000 / 60);
+}
+function stopParticles() {
 	clearInterval(interval);
 }
 
@@ -93,8 +97,7 @@ function particleSystem(id) {
 	this.removed = false;
 	this.elements = [];
 	
-	var sthis = this;
-	interval = setInterval(function() { sthis.loop() }, 1000 / 60);
+	curPsystem = this;
 }
 
 particleSystem.prototype.add = function(element) {
