@@ -166,6 +166,24 @@ function ready() {
 			setup('gravity');
 		}
 	});
+	cshelf.add({
+		name: 'Evaluator', 
+		inputs: ['Code'], 
+		outputs: ['Value'], 
+		init: function(node, code) {
+			node.code = code == undefined ? 'Math.sin(time) * 10' : code;
+		}, 
+		focus: function(node) {
+			properties = $('#evaluator-properties').show();
+			function setup(name) {
+				var jelem = $('#evaluator-' + name);
+				jelem.val(node[name]);
+				jelem.unbind('change');
+				jelem.change(function() { node[name] = jelem.val(); node.update(); });
+			}
+			setup('code');
+		}
+	});
 	
 	cshelf.build('Emitter', 150, 350, 1, 150, 'rgba(255, 0, 0, 0.75)');
 	cshelf.build('Emitter', 320, 240, 1, 100, 'rgba(0, 0, 255, 0.75)');
