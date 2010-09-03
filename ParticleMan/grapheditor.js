@@ -314,7 +314,8 @@ graphNode.prototype.remove = function(hook) {
 };
 
 graphNode.prototype.addPoint = function(label, dir, multi) {
-	this.points.push(new point(this, label, dir, multi));
+	var npoint = this[label] = new point(this, label, dir, multi);
+	this.points.push(npoint);
 	return this;
 };
 

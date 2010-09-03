@@ -113,9 +113,10 @@ $(document).ready(
 			}, 
 			focus: function(node) {
 				properties = $('#emitter-properties').show();
-				function setup(name) {
+				function setup(name, label) {
 					var jelem = $('#emitter-' + name);
 					jelem.val(node[name]);
+					jelem.attr('disabled', node[label] != undefined && node[label].connections.length != 0);
 					jelem.unbind('change');
 					jelem.change(function() {
 						var val = parseFloat(jelem.val());
@@ -125,10 +126,10 @@ $(document).ready(
 						node.update();
 					});
 				}
-				setup('x');
-				setup('y');
-				setup('speed');
-				setup('lifetime');
+				setup('x', 'X');
+				setup('y', 'Y');
+				setup('speed', 'Speed');
+				setup('lifetime', 'Lifetime');
 				setup('color');
 			}
 		});
