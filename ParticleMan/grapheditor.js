@@ -1,4 +1,4 @@
-Raphael.fn.connection = function (obj1, obj2, line, bg) {
+Raphael.fn.connection = function (obj1, obj2, line, bg, removeHook) {
     if (obj1.line && obj1.from && obj1.to) {
         line = obj1;
         obj1 = line.from;
@@ -46,9 +46,23 @@ Raphael.fn.connection = function (obj1, obj2, line, bg) {
         line.line.attr({path: path});
     } else {
         var color = typeof line == "string" ? line : "#000";
+        var lineElem = this.path(path);
+        var bgElem = (bg && bg.split) ? this.path(path) : null;
+        if(removeHook != undefined) {
+        	function dblclick(e) {
+						(e.originalEvent || e).preventDefault();
+	        	removeHook();
+	        	lineElem.remove();
+	        	if(bgElem != null)
+		        	bgElem.remove();
+	        }
+        	lineElem.dblclick(dblclick);
+        	if(bgElem != null)
+	        	bgElem.dblclick(dblclick);
+      	}
         return {
-            line: this.path(path).attr({stroke: color, fill: "none"}).toBack(),
-            bg: bg && bg.split && this.path(path).attr({stroke: bg.split("|")[0], fill: "none", "stroke-width": bg.split("|")[1] || 3}).toBack(),
+            line: lineElem.attr({stroke: color, fill: "none"}).toBack(),
+            bg: bg && bg.split && bgElem.attr({stroke: bg.split("|")[0], fill: "none", "stroke-width": bg.split("|")[1] || 3}).toBack(),
             from: obj1,
             to: obj2
         };
@@ -310,20 +324,40 @@ function point(parent, label, dir) {
 }
 
 point.prototype.connect = function(raphael, other, sub) {
+	var sthis = this;
 	var editor = this.parent.parent;
 	
 	this.connections.push(other);
 	this.circle.attr({fill: editor.theme.pointActive});
 	if(sub !== true) {
+		function remove() {
+			sthis.removeConnection(other);
+			raphael.safari();
+		}
+		
 		other.connect(raphael, this, true);
-		line = raphael.connection(this.circle, other.circle, editor.theme.lineFill, editor.theme.lineStroke + '|' + editor.theme.lineStrokeWidth);
+		line = raphael.connection(this.circle, other.circle, editor.theme.lineFill, editor.theme.lineStroke + '|' + editor.theme.lineStrokeWidth, remove);
 		this.lines.push(line);
 		other.lines.push(line);
 	}
+};
+
+point.prototype.removeConnection = function(other, sub) {
+	var editor = this.parent.parent;
+	for(var i in this.connections)
+		if(this.connections[i] == other) {
+			this.connections.splice(i, 1);
+			if(sub !== true)
+				other.removeConnection(this, true);
+			break;
+		}
+	
+	if(this.connections.length == 0)
+		this.circle.attr({fill: editor.theme.pointInactive});
 };
 
 point.prototype.fixConnections = function(raphael) {
 	for(var i in this.lines)
 		raphael.connection(this.lines[i]);
 	raphael.safari();
-}
+};
