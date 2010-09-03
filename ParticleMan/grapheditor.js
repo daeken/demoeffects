@@ -70,8 +70,10 @@ Raphael.fn.connection = function (obj1, obj2, line, bg, removeHook) {
 };
 
 Raphael.fn.removeConnection = function(connection) {
-	connection.line.remove();
-	connection.bg.remove();
+	if(connection.line != undefined)
+		connection.line.remove();
+	if(connection.bg != undefined)
+		connection.bg.remove();
 };
 
 Raphael.el.xlateText = function() {
@@ -125,7 +127,14 @@ graphEditor.prototype.rigConnections = function(point) {
 			(e.originalEvent || e).preventDefault();
 			
 			var circle = sthis.raphael.circle(point.circle.attr('cx'), point.circle.attr('cy'), 1);
-			var line = sthis.raphael.connection(point.circle, circle, sthis.theme.connectingFill, sthis.theme.connectingStroke + '|' + sthis.theme.connectingStrokeWidth);
+			if(!point.multi && point.connections.length != 0) {
+				var other = point.connections[0];
+				beginning = other.circle;
+				point.removeConnection(sthis.raphael, other);
+				connecting = other;
+			} else
+				connecting = point;
+			var line = sthis.raphael.connection(connecting.circle, circle, sthis.theme.connectingFill, sthis.theme.connectingStroke + '|' + sthis.theme.connectingStrokeWidth);
 			var jo = $(sthis.raphael.element);
 			var mouseup = function() {
 				circle.remove();
@@ -150,11 +159,10 @@ graphEditor.prototype.rigConnections = function(point) {
 			}
 			jo.mousemove(mousemove);
 			
-			connecting = point;
 			connectionCallback = function(cpoint) {
-				if(cpoint.dir != point.dir && cpoint.parent != point.parent)
-					point.connect(sthis.raphael, cpoint);
-			}
+				if(cpoint.dir != connecting.dir && cpoint.parent != connecting.parent)
+					connecting.connect(sthis.raphael, cpoint);
+			};
 		}
 	);
 	point.circle.mouseup(
@@ -289,8 +297,8 @@ function graphNode(id, title) {
 	return true;
 }
 
-graphNode.prototype.addPoint = function(label, dir) {
-	this.points.push(new point(this, label, dir));
+graphNode.prototype.addPoint = function(label, dir, multi) {
+	this.points.push(new point(this, label, dir, multi));
 	return this;
 };
 
@@ -312,10 +320,14 @@ graphNode.prototype.blur = function(hook) {
 		this.blurHooks.push(hook);
 };
 
-function point(parent, label, dir) {
+function point(parent, label, dir, multi) {
 	this.parent = parent;
 	this.label = label;
 	this.dir = dir;
+	if(multi == undefined)
+		this.multi = dir == 'out';
+	else
+		this.multi = multi;
 	
 	this.connections = [];
 	this.lines = []
@@ -326,6 +338,9 @@ function point(parent, label, dir) {
 point.prototype.connect = function(raphael, other, sub) {
 	var sthis = this;
 	var editor = this.parent.parent;
+	
+	if(!this.multi && this.connections.length != 0)
+		return false;
 	
 	this.connections.push(other);
 	this.circle.attr({fill: editor.theme.pointActive});
@@ -340,15 +355,20 @@ point.prototype.connect = function(raphael, other, sub) {
 		this.lines.push(line);
 		other.lines.push(line);
 	}
+	
+	return true;
 };
 
-point.prototype.removeConnection = function(other, sub) {
+point.prototype.removeConnection = function(raphael, other, sub) {
 	var editor = this.parent.parent;
 	for(var i in this.connections)
 		if(this.connections[i] == other) {
 			this.connections.splice(i, 1);
-			if(sub !== true)
-				other.removeConnection(this, true);
+			if(sub !== true) {
+				other.removeConnection(raphael, this, true);
+				raphael.removeConnection(this.lines[i]);
+			}
+			this.lines.splice(i, 1);
 			break;
 		}
 	
