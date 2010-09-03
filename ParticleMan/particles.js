@@ -25,9 +25,14 @@ function attractor(x, y, gravity) {
 	this.x = x;
 	this.y = y;
 	this.gravity = gravity;
-	for(name in this)
-		console.log(name);
 }
+
+attractor.prototype.draw = function() {
+	this.parent.ctx.beginPath();
+	this.parent.ctx.arc(this.x, this.y, this.gravity, 0, Math.PI*2, true);
+	this.parent.ctx.fillStyle = '#900';
+	this.parent.ctx.fill();
+};
 
 attractor.prototype.update = function() {
 	var sthis = this;
@@ -37,7 +42,8 @@ attractor.prototype.update = function() {
 			
 			var dx = elem.x - sthis.x;
 			var dy = elem.y - sthis.y;
-			var power = sthis.gravity / Math.sqrt(dx*dx + dy*dy);
+			var dist = Math.sqrt(dx*dx + dy*dy);
+			var power = (dist == 0) ? 0 : sthis.gravity / dist;
 			
 			elem.x -= dx * power;
 			elem.y -= dy * power;
@@ -73,6 +79,7 @@ particle.prototype.update = function() {
 particle.prototype.draw = function() {
 	this.parent.ctx.beginPath();
 	this.parent.ctx.arc(this.x, this.y, Math.sqrt(this.lifetime), 0, Math.PI*2, true);
+	this.parent.ctx.fillStyle = 'black';
 	this.parent.ctx.fill();
 };
 
@@ -84,9 +91,9 @@ function particleSystem(id) {
 	this.removed = false;
 	this.elements = [];
 	
-	this.add(new emitter(100, 100, 2, 1, 100));
-	this.add(new attractor(400, 200, 4));
-	this.add(new emitter(500, 400, 5, 1, 100));
+	this.add(new emitter(320, 240, 50, 1, 100));
+	this.add(new attractor(320, 240, 70));
+	this.add(new attractor(0, 240, 20));
 	
 	var sthis = this;
 	interval = setInterval(function() { sthis.loop() }, 1000 / 60);
