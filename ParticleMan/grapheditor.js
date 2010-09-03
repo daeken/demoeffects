@@ -149,8 +149,8 @@ graphEditor.prototype.rigConnections = function(point) {
 			var sx = undefined, sy = undefined;
 			var mousemove = function(e) {
 				if(sx == undefined) {
-					sx = e.pageX - 3;
-					sy = e.pageY - 3;
+					sx = e.pageX;
+					sy = e.pageY;
 				}
 				circle.translate(e.pageX - sx, e.pageY - sy);
 				sthis.raphael.connection(line);
