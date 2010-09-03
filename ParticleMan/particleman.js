@@ -101,7 +101,13 @@ function ready() {
 				var jelem = $('#emitter-' + name);
 				jelem.val(node[name]);
 				jelem.unbind('change');
-				jelem.change(function() { node[name] = parseFloat(jelem.val()); node.update(); });
+				jelem.change(function() {
+					var val = parseFloat(jelem.val());
+					if(val != val)
+						val = jelem.val();
+					node[name] = val;
+					node.update();
+				});
 			}
 			setup('x');
 			setup('y');
