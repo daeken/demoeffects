@@ -68,7 +68,32 @@ Raphael.el.xlateText = function() {
 var connecting = null;
 var connectionCallback = null;
 
-function graphEditor(id, width, height) {
+var defaultTheme = {
+	nodeFill: '#eee', 
+	pointInactive: '#fff', 
+	pointActive: '#ccc',
+	
+	connectingFill: '#fff', 
+	connectingStroke: '#000', 
+	connectingStrokeWidth: '3', 
+	
+	lineFill: 'blue', 
+	lineStroke: '#000', 
+	lineStrokeWidth: '3'
+};
+
+function graphEditor(id, width, height, theme) {
+	if(theme == undefined)
+		this.theme = defaultTheme;
+	else {
+		this.theme = {};
+		for(k in theme)
+			this.theme[k] = theme[k];
+		for(k in defaultTheme)
+			if(this.theme[k] == undefined)
+				this.theme[k] = defaultTheme[k];
+	}
+	
 	this.raphael = Raphael(id, width, height);
 	this.raphael.rect(0, 0, width, height).attr({
 			stroke: '#222'
@@ -86,7 +111,7 @@ graphEditor.prototype.rigConnections = function(point) {
 			(e.originalEvent || e).preventDefault();
 			
 			var circle = sthis.raphael.circle(point.circle.attr('cx'), point.circle.attr('cy'), 1);
-			var line = sthis.raphael.connection(point.circle, circle, 'yellow', '#000');
+			var line = sthis.raphael.connection(point.circle, circle, sthis.theme.connectingFill, sthis.theme.connectingStroke + '|' + sthis.theme.connectingStrokeWidth);
 			var jo = $(sthis.raphael.element);
 			var mouseup = function() {
 				circle.remove();
@@ -154,7 +179,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	for(i in node.points) {
 		var point = node.points[i];
 		if(point.dir == 'out') continue;
-		point.circle = circle = this.raphael.circle(x+7.5, ly, 5).attr({stroke: '#000', fill: '#fff'}).toFront();
+		point.circle = circle = this.raphael.circle(x+7.5, ly, 5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
 		this.rigConnections(point);
 		label = this.raphael.text(x+25, ly, point.label).attr({fill: '#000', 'font-size': 12}).toFront();
 		bbox = label.getBBox();
@@ -185,7 +210,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	ex = lx + mx + 10;
 	for(i in labels) {
 		var label = labels[i];
-		label.point.circle = circle = this.raphael.circle(ex, ly, 5).attr({stroke: '#000', fill: '#fff'}).toFront();
+		label.point.circle = circle = this.raphael.circle(ex, ly, 5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
 		this.rigConnections(label.point);
 		bbox = label.getBBox();
 		ly += bbox.height + 5;
@@ -193,7 +218,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 		temp.push(label);
 	}
 	
-	rect = this.raphael.rect(x, y, ex+10 - x, Math.max(my, ly) - y, 10).attr({fill: '#eee', 'fill-opacity': 0.9});
+	rect = this.raphael.rect(x, y, ex+10 - x, Math.max(my, ly) - y, 10).attr({fill: this.theme.nodeFill, 'fill-opacity': 0.9});
 	var set = node.element = this.raphael.set().push(
 		rect, 
 		this.raphael.text(x+20, y+15, node.title).attr({fill: '#000', 'font-size': 16, 'font-weight': 'bold'})
@@ -285,11 +310,13 @@ function point(parent, label, dir) {
 }
 
 point.prototype.connect = function(raphael, other, sub) {
+	var editor = this.parent.parent;
+	
 	this.connections.push(other);
-	this.circle.attr({fill: '#ccc'});
+	this.circle.attr({fill: editor.theme.pointActive});
 	if(sub !== true) {
 		other.connect(raphael, this, true);
-		line = raphael.connection(this.circle, other.circle, '#000', '#006');
+		line = raphael.connection(this.circle, other.circle, editor.theme.lineFill, editor.theme.lineStroke + '|' + editor.theme.lineStrokeWidth);
 		this.lines.push(line);
 		other.lines.push(line);
 	}
