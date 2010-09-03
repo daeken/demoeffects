@@ -42,13 +42,13 @@ Raphael.fn.connection = function (obj1, obj2, line, bg) {
         y3 = [0, 0, 0, 0, y1 + dy, y1 - dy, y4, y4][res[1]].toFixed(3);
     var path = ["M", x1.toFixed(3), y1.toFixed(3), "C", x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)].join(",");
     if (line && line.line) {
-        line.bg && line.bg.attr({path: path}).toFront();
-        line.line.attr({path: path}).toFront();
+        line.bg && line.bg.attr({path: path});
+        line.line.attr({path: path});
     } else {
         var color = typeof line == "string" ? line : "#000";
         return {
-            bg: bg && bg.split && this.path(path).attr({stroke: bg.split("|")[0], fill: "none", "stroke-width": bg.split("|")[1] || 3}),
-            line: this.path(path).attr({stroke: color, fill: "none"}).toFront(),
+            line: this.path(path).attr({stroke: color, fill: "none"}).toBack(),
+            bg: bg && bg.split && this.path(path).attr({stroke: bg.split("|")[0], fill: "none", "stroke-width": bg.split("|")[1] || 3}).toBack(),
             from: obj1,
             to: obj2
         };
@@ -71,7 +71,6 @@ var connectionCallback = null;
 function graphEditor(id, width, height) {
 	this.raphael = Raphael(id, width, height);
 	this.raphael.rect(0, 0, width, height).attr({
-			fill: '#fff',
 			stroke: '#222'
 		});
 	this.nodes = [];
@@ -155,7 +154,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	for(i in node.points) {
 		var point = node.points[i];
 		if(point.dir == 'out') continue;
-		point.circle = circle = this.raphael.circle(x+7.5, ly, 5).attr({stroke: '#000', fill: '#ddd'}).toFront();
+		point.circle = circle = this.raphael.circle(x+7.5, ly, 5).attr({stroke: '#000', fill: '#fff'}).toFront();
 		this.rigConnections(point);
 		label = this.raphael.text(x+25, ly, point.label).attr({fill: '#000', 'font-size': 12}).toFront();
 		bbox = label.getBBox();
@@ -186,7 +185,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	ex = lx + mx + 10;
 	for(i in labels) {
 		var label = labels[i];
-		label.point.circle = circle = this.raphael.circle(ex, ly, 5).attr({stroke: '#000', fill: '#ddd'}).toFront();
+		label.point.circle = circle = this.raphael.circle(ex, ly, 5).attr({stroke: '#000', fill: '#fff'}).toFront();
 		this.rigConnections(label.point);
 		bbox = label.getBBox();
 		ly += bbox.height + 5;
@@ -194,7 +193,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 		temp.push(label);
 	}
 	
-	rect = this.raphael.rect(x, y, ex+10 - x, Math.max(my, ly) - y, 10).attr({fill: '#eee'});
+	rect = this.raphael.rect(x, y, ex+10 - x, Math.max(my, ly) - y, 10).attr({fill: '#eee', 'fill-opacity': 0.9});
 	var set = node.element = this.raphael.set().push(
 		rect, 
 		this.raphael.text(x+20, y+15, node.title).attr({fill: '#000', 'font-size': 16, 'font-weight': 'bold'})
@@ -232,7 +231,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 		sthis.raphael.safari();
 	}
 	function end() {
-		set.animate({'fill-opacity': 1}, 250);
+		set.animate({'fill-opacity': 0.9}, 250);
 		if(this.moved != false)
 			suppressSelect = true;
 	}
@@ -287,6 +286,7 @@ function point(parent, label, dir) {
 
 point.prototype.connect = function(raphael, other, sub) {
 	this.connections.push(other);
+	this.circle.attr({fill: '#ccc'});
 	if(sub !== true) {
 		other.connect(raphael, this, true);
 		line = raphael.connection(this.circle, other.circle, '#000', '#006');
