@@ -203,7 +203,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 		if(point.dir == 'out') continue;
 		point.circle = circle = this.raphael.circle(x+7.5, ly, 5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
 		this.rigConnections(point);
-		label = this.raphael.text(x+25, ly, point.label).attr({fill: '#000', 'font-size': 12}).toFront();
+		label = this.raphael.text(x+35, ly, point.label).attr({fill: '#000', 'font-size': 12}).toFront();
 		bbox = label.getBBox();
 		ly += bbox.height + 5;
 		if(bbox.width > mx)
@@ -230,6 +230,12 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	}
 	ly = y+35;
 	ex = lx + mx + 10;
+	
+	var text = this.raphael.text(x+20, y+15, node.title).attr({fill: '#000', 'font-size': 16, 'font-weight': 'bold'}).xlateText();
+	bbox = text.getBBox();
+	if(ex < bbox.width + 80)
+		ex = bbox.width + 80;
+	
 	for(i in labels) {
 		var label = labels[i];
 		label.point.circle = circle = this.raphael.circle(ex, ly, 5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
@@ -241,10 +247,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	}
 	
 	rect = this.raphael.rect(x, y, ex+10 - x, Math.max(my, ly) - y, 10).attr({fill: this.theme.nodeFill, 'fill-opacity': 0.9});
-	var set = node.element = this.raphael.set().push(
-		rect, 
-		this.raphael.text(x+20, y+15, node.title).attr({fill: '#000', 'font-size': 16, 'font-weight': 'bold'})
-	);
+	var set = node.element = this.raphael.set().push(rect, text.toFront());
 	for(i in temp)
 		set.push(temp[i].toFront());
 	

@@ -9,8 +9,17 @@
 	</head>
 	
 	<body onload="ready()">
-		<div id="editor">
-			<div id="graph-editor"></div>
+		<div>
+			<table>
+				<tr>
+					<td valign="top">
+						<table id="shelf" style="border: 1px solid #222">
+							<tr><td style="border-bottom: 1px dashed #ccc"><b>Name</b></td><tr>
+						</table>
+					</td>
+					<td id="graph-editor"></td>
+				</tr>
+			</table>
 		</div>
 		
 		<canvas id="c" width="640" height="480"><br />
