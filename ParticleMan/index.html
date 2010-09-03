@@ -10,14 +10,21 @@
 	
 	<body onload="ready()">
 		<div>
-			<table>
+			<table border="1" width="100%">
 				<tr>
-					<td valign="top">
-						<table id="shelf" style="border: 1px solid #222">
+					<td valign="top" width="33%">
+						<table id="shelf">
 							<tr><td style="border-bottom: 1px dashed #ccc"><b>Name</b></td><tr>
 						</table>
 					</td>
 					<td id="graph-editor"></td>
+					<td id="node-properties" valign="top" width="33%">
+						<div id="no-nodes" style="font-style: italic">No node selected</div>
+						<table id="circle-properties" style="display: none" width="100%">
+							<thead><tr><td style="border-bottom: 1px dashed #ccc">Name</td><td style="border-bottom: 1px dashed #ccc">Value</td></tr></thead>
+							<tr><td>Radius:</td><td><input id="circle-radius" type="text" value="xxx" /></td></tr>
+						</table>
+					</td>
 				</tr>
 			</table>
 		</div>

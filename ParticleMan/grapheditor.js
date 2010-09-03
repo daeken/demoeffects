@@ -111,9 +111,6 @@ function graphEditor(id, width, height, theme) {
 	}
 	
 	this.raphael = Raphael(id, width, height);
-	this.raphael.rect(0, 0, width, height).attr({
-			stroke: '#222'
-		});
 	this.nodes = [];
 	this.selected = null;
 	
@@ -308,8 +305,8 @@ graphNode.prototype.addPoint = function(label, dir, multi) {
 graphNode.prototype.focus = function(hook) {
 	if(hook == undefined) {
 		this.selected = true;
-		for(hook in this.focusHooks)
-			this.focusHooks[hook](this);
+		for(var i in this.focusHooks)
+			this.focusHooks[i](this);
 	} else
 		this.focusHooks.push(hook);
 };
@@ -317,8 +314,8 @@ graphNode.prototype.focus = function(hook) {
 graphNode.prototype.blur = function(hook) {
 	if(hook == undefined) {
 		this.selected = false;
-		for(hook in this.blurHooks)
-			this.blurHooks[hook](this);
+		for(var i in this.blurHooks)
+			this.blurHooks[i](this);
 	} else
 		this.blurHooks.push(hook);
 };
