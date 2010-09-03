@@ -55,6 +55,11 @@ Raphael.fn.connection = function (obj1, obj2, line, bg) {
     }
 };
 
+Raphael.fn.removeConnection = function(connection) {
+	connection.line.remove();
+	connection.bg.remove();
+};
+
 Raphael.el.xlateText = function() {
 	this.translate(this.getBBox().width / 2, 0);
 	return this;
@@ -81,8 +86,12 @@ graphEditor.prototype.rigConnections = function(point) {
 		function(e) {
 			(e.originalEvent || e).preventDefault();
 			
+			var circle = sthis.raphael.circle(point.circle.attr('cx'), point.circle.attr('cy'), 1);
+			var line = sthis.raphael.connection(point.circle, circle, 'yellow', '#000');
 			var jo = $(sthis.raphael.element);
 			var mouseup = function() {
+				circle.remove();
+				sthis.raphael.removeConnection(line);
 				connecting = null;
 				connectionCallback = null;
 				jo.unbind('mouseup', mouseup);
@@ -90,8 +99,16 @@ graphEditor.prototype.rigConnections = function(point) {
 			}
 			jo.mouseup(mouseup);
 			
-			var mousemove = function() {
-				//console.log('zomg');
+			var sx = undefined, sy = undefined;
+			var mousemove = function(e) {
+				if(sx == undefined) {
+					sx = e.pageX - 3;
+					sy = e.pageY - 3;
+				}
+				circle.translate(e.pageX - sx, e.pageY - sy);
+				sthis.raphael.connection(line);
+				sx = e.pageX;
+				sy = e.pageY;
 			}
 			jo.mousemove(mousemove);
 			
