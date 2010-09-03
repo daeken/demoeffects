@@ -5,6 +5,7 @@ function shelf(id, graph) {
 	this.graph = graph;
 	this.focus = null;
 	this.blur = null;
+	this.node = null;
 	
 	this.builders = {};
 }
@@ -59,16 +60,25 @@ shelf.prototype.add = function(obj) {
 function ready() {
 	theme = {pointActive: 'red'};
 	
+	var deleteNode = $('#delete-node');
 	var notice = $('#no-nodes');
 	var properties = null;
 	var graph = new graphEditor('graph-editor', 640, 300, theme);
 	var cshelf = new shelf('shelf', graph);
 	var psystem = new particleSystem('c');
 	
-	cshelf.focus = function() {
+	cshelf.focus = function(node) {
+		deleteNode.show();
+		deleteNode.unbind('click');
+		deleteNode.click(
+			function() {
+				node.remove();
+			}
+		);
 		notice.hide();
 	}
 	cshelf.blur = function() {
+		deleteNode.hide();
 		notice.show();
 		if(properties != null)
 			properties.hide();
@@ -92,6 +102,11 @@ function ready() {
 					cemitter.speed = node.speed;
 					cemitter.lifetime = node.lifetime;
 					cemitter.color = node.color;
+				}
+			);
+			node.remove(
+				function() {
+					psystem.remove(cemitter);
 				}
 			);
 		}, 
@@ -130,6 +145,11 @@ function ready() {
 					cattractor.x = node.x;
 					cattractor.y = node.y;
 					cattractor.gravity = node.gravity;
+				}
+			);
+			node.remove(
+				function() {
+					psystem.remove(cattractor);
 				}
 			);
 		}, 

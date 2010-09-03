@@ -175,6 +175,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	var sthis = this;
 	this.nodes.push(node);
 	
+	node.raphael = this.raphael;
 	node.parent = this;
 	node.focus(
 		function(node) {
@@ -293,10 +294,24 @@ function graphNode(id, title) {
 	this.focusHooks = [];
 	this.blurHooks = [];
 	this.updateHooks = [];
+	this.removeHooks = [];
 	this.selected = false;
 	
 	return true;
 }
+
+graphNode.prototype.remove = function(hook) {
+	if(hook == undefined) {
+		if(this.selected)
+			this.blur();
+		this.element.remove();
+		for(var i in this.points)
+			this.points[i].remove(this.raphael);
+		for(var i in this.removeHooks)
+			this.removeHooks[i](this);
+	} else
+		this.removeHooks.push(hook);
+};
 
 graphNode.prototype.addPoint = function(label, dir, multi) {
 	this.points.push(new point(this, label, dir, multi));
@@ -344,6 +359,13 @@ function point(parent, label, dir, multi) {
 	
 	return true;
 }
+
+point.prototype.remove = function(raphael) {
+	for(var i in this.connections)
+		this.connections[i].removeConnection(raphael, this, true);
+	for(var i in this.lines)
+		raphael.removeConnection(this.lines[i]);
+};
 
 point.prototype.connect = function(raphael, other, sub) {
 	var sthis = this;
