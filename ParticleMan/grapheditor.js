@@ -97,7 +97,8 @@ graphEditor.prototype.rigConnections = function(point) {
 			
 			connecting = point;
 			connectionCallback = function(cpoint) {
-				point.connect(sthis.raphael, cpoint);
+				if(cpoint.dir != point.dir && cpoint.parent != point.parent)
+					point.connect(sthis.raphael, cpoint);
 			}
 		}
 	);
@@ -234,7 +235,7 @@ function graphNode(id, title) {
 }
 
 graphNode.prototype.addPoint = function(label, dir) {
-	this.points.push(new point(label, dir));
+	this.points.push(new point(this, label, dir));
 	return this;
 };
 
@@ -256,7 +257,8 @@ graphNode.prototype.blur = function(hook) {
 		this.blurHooks.push(hook);
 };
 
-function point(label, dir) {
+function point(parent, label, dir) {
+	this.parent = parent;
 	this.label = label;
 	this.dir = dir;
 	
