@@ -5,33 +5,54 @@ function shelf(id, graph) {
 	this.graph = graph;
 	this.focus = null;
 	this.blur = null;
+	
+	this.builders = {};
+}
+
+shelf.prototype.build = function(name) {
+	var args = [];
+	for(var i = 1; i < arguments.length; ++i)
+		args.push(arguments[i]);
+	console.log(name);
+	console.log(args[1]);
+	this.builders[name].apply(this, args);
 }
 
 shelf.prototype.add = function(obj) {
 	var name = obj.name;
 	var elem = $('<tr><td style="background: transparent">' + name + '</td></tr>');
 	var sthis = this;
+	
+	this.builders[name] = function() {
+		var node = new graphNode(null, name);
+		if(obj.inputs != undefined)
+			for(var i in obj.inputs)
+				node.addPoint(obj.inputs[i], 'in');
+		if(obj.outputs != undefined)
+			for(var i in obj.outputs)
+				node.addPoint(obj.outputs[i], 'out');
+		sthis.graph.addNode(Math.floor(Math.random() * 400) + 20, Math.floor(Math.random() * 100) + 20, node);
+		if(sthis.focus != null)
+			node.focus(sthis.focus);
+		if(sthis.blur != null)
+			node.blur(sthis.blur);
+		if(obj.focus != undefined)
+			node.focus(obj.focus);
+		
+		if(obj.init != undefined) {
+			var args = [node];
+			for(var i in arguments)
+				args.push(arguments[i]);
+			obj.init.apply(obj, args);
+		}
+		return obj;
+	};
+	
 	elem.children('td').dblclick(
 		function(e) {
 			(e.originalEvent || e).preventDefault();
 			
-			var node = new graphNode(null, name);
-			if(obj.inputs != undefined)
-				for(var i in obj.inputs)
-					node.addPoint(obj.inputs[i], 'in');
-			if(obj.outputs != undefined)
-				for(var i in obj.outputs)
-					node.addPoint(obj.outputs[i], 'out');
-			sthis.graph.addNode(Math.floor(Math.random() * 400) + 20, Math.floor(Math.random() * 200) + 20, node);
-			if(sthis.focus != null)
-				node.focus(sthis.focus);
-			if(sthis.blur != null)
-				node.blur(sthis.blur);
-			if(obj.focus != undefined)
-				node.focus(obj.focus);
-			
-			if(obj.init != undefined)
-				obj.init(node);
+			sthis.builders[name]();
 		}
 	);
 	$('#' + this.id + ' > tbody:last').append(elem);
@@ -59,11 +80,11 @@ function ready() {
 		name: 'Emitter', 
 		inputs: ['X', 'Y', 'Speed', 'Lifetime'], 
 		outputs: [], 
-		init: function(node) {
-			node.x = 320;
-			node.y = 240;
-			node.speed = 1;
-			node.lifetime = 100;
+		init: function(node, x, y, speed, lifetime) {
+			node.x = x == undefined ? 320 : x;
+			node.y = y == undefined ? 240 : y;
+			node.speed = speed == undefined ? 1 : speed;
+			node.lifetime = lifetime == undefined ? 100 : lifetime;
 			var cemitter = psystem.add(new emitter(node.x, node.y, node.speed, 0, node.lifetime));
 			node.update(
 				function() {
@@ -92,10 +113,10 @@ function ready() {
 		name: 'Attractor', 
 		inputs: ['X', 'Y', 'Gravity'], 
 		outputs: [], 
-		init: function(node) {
-			node.x = 320;
-			node.y = 240;
-			node.gravity = 1;
+		init: function(node, x, y, gravity) {
+			node.x = x == undefined ? 320 : x;
+			node.y = y == undefined ? 240 : y;
+			node.gravity = gravity == undefined ? 1 : gravity;
 			var cattractor = psystem.add(new attractor(node.x, node.y, node.gravity));
 			node.update(
 				function() {
@@ -118,4 +139,7 @@ function ready() {
 			setup('gravity');
 		}
 	});
+	
+	cshelf.build('Emitter');
+	cshelf.build('Attractor', 320, 400, -2);
 }
