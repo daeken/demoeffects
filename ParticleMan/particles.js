@@ -3,13 +3,14 @@ function stop() {
 	clearInterval(interval);
 }
 
-function emitter(x, y, speed, frequency, lifetime) {
+function emitter(x, y, speed, frequency, lifetime, color) {
 	this.type = emitter;
 	this.x = x;
 	this.y = y;
 	this.speed = speed;
 	this.frequency = frequency;
 	this.lifetime = lifetime;
+	this.color = color;
 }
 
 emitter.prototype.update = function() {
@@ -17,7 +18,7 @@ emitter.prototype.update = function() {
 	
 	dx = Math.sin(angle) * this.speed;
 	dy = Math.cos(angle) * this.speed;
-	this.parent.add(new particle(this.x, this.y, dx, dy, this.lifetime));
+	this.parent.add(new particle(this.x, this.y, dx, dy, this.lifetime, this.color));
 };
 
 function attractor(x, y, gravity) {
@@ -59,13 +60,14 @@ attractor.prototype.update = function() {
 	);
 };
 
-function particle(x, y, sx, sy, lifetime) {
+function particle(x, y, sx, sy, lifetime, color) {
 	this.type = particle;
 	this.x = x;
 	this.y = y;
 	this.sx = sx;
 	this.sy = sy;
 	this.lifetime = lifetime;
+	this.color = color;
 }
 
 particle.prototype.update = function() {
@@ -79,7 +81,7 @@ particle.prototype.update = function() {
 particle.prototype.draw = function() {
 	this.parent.ctx.beginPath();
 	this.parent.ctx.arc(this.x, this.y, Math.sqrt(this.lifetime), 0, Math.PI*2, true);
-	this.parent.ctx.fillStyle = 'black';
+	this.parent.ctx.fillStyle = this.color;
 	this.parent.ctx.fill();
 };
 

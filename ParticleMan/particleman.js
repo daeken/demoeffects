@@ -78,20 +78,22 @@ function ready() {
 	
 	cshelf.add({
 		name: 'Emitter', 
-		inputs: ['X', 'Y', 'Speed', 'Lifetime'], 
+		inputs: ['X', 'Y', 'Speed', 'Lifetime', 'Color'], 
 		outputs: [], 
-		init: function(node, x, y, speed, lifetime) {
+		init: function(node, x, y, speed, lifetime, color) {
 			node.x = x == undefined ? 320 : x;
 			node.y = y == undefined ? 240 : y;
 			node.speed = speed == undefined ? 1 : speed;
 			node.lifetime = lifetime == undefined ? 100 : lifetime;
-			var cemitter = psystem.add(new emitter(node.x, node.y, node.speed, 0, node.lifetime));
+			node.color = color == undefined ? 'black' : color;
+			var cemitter = psystem.add(new emitter(node.x, node.y, node.speed, 0, node.lifetime, node.color));
 			node.update(
 				function() {
 					cemitter.x = node.x;
 					cemitter.y = node.y;
 					cemitter.speed = node.speed;
 					cemitter.lifetime = node.lifetime;
+					cemitter.color = node.color;
 				}
 			);
 		}, 
@@ -107,6 +109,7 @@ function ready() {
 			setup('y');
 			setup('speed');
 			setup('lifetime');
+			setup('color');
 		}
 	});
 	cshelf.add({
@@ -140,6 +143,7 @@ function ready() {
 		}
 	});
 	
-	cshelf.build('Emitter');
-	cshelf.build('Attractor', 320, 400, -2);
+	cshelf.build('Emitter', 150, 350, 1, 150, 'rgba(255, 0, 0, 0.75)');
+	cshelf.build('Emitter', 320, 240, 1, 100, 'rgba(0, 0, 255, 0.75)');
+	cshelf.build('Attractor', 300, 200, 1);
 }
