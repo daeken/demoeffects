@@ -73,4 +73,6 @@ function ready() {
 		name: 'Attractor', 
 		inputs: ['Gravity']
 	});
+	
+	var psystem = new particleSystem('c');
 }
