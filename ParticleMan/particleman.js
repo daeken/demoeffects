@@ -13,8 +13,6 @@ shelf.prototype.build = function(name) {
 	var args = [];
 	for(var i = 1; i < arguments.length; ++i)
 		args.push(arguments[i]);
-	console.log(name);
-	console.log(args[1]);
 	this.builders[name].apply(this, args);
 }
 
