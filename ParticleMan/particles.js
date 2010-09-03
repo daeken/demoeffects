@@ -29,7 +29,7 @@ function attractor(x, y, gravity) {
 
 attractor.prototype.draw = function() {
 	this.parent.ctx.beginPath();
-	this.parent.ctx.arc(this.x, this.y, this.gravity, 0, Math.PI*2, true);
+	this.parent.ctx.arc(this.x, this.y, 10, 0, Math.PI*2, true);
 	this.parent.ctx.fillStyle = '#900';
 	this.parent.ctx.fill();
 };
@@ -91,10 +91,6 @@ function particleSystem(id) {
 	this.removed = false;
 	this.elements = [];
 	
-	this.add(new emitter(320, 240, 50, 1, 100));
-	this.add(new attractor(320, 240, 70));
-	this.add(new attractor(0, 240, 20));
-	
 	var sthis = this;
 	interval = setInterval(function() { sthis.loop() }, 1000 / 60);
 }
@@ -102,7 +98,7 @@ function particleSystem(id) {
 particleSystem.prototype.add = function(element) {
 	element.parent = this;
 	this.elements.push(element);
-	return this;
+	return element;
 };
 
 particleSystem.prototype.remove = function(element) {

@@ -292,6 +292,7 @@ function graphNode(id, title) {
 	
 	this.focusHooks = [];
 	this.blurHooks = [];
+	this.updateHooks = [];
 	this.selected = false;
 	
 	return true;
@@ -319,6 +320,15 @@ graphNode.prototype.blur = function(hook) {
 	} else
 		this.blurHooks.push(hook);
 };
+
+graphNode.prototype.update = function(hook) {
+	if(hook == undefined) {
+		this.selected = false;
+		for(var i in this.updateHooks)
+			this.updateHooks[i](this);
+	} else
+		this.updateHooks.push(hook);
+}
 
 function point(parent, label, dir, multi) {
 	this.parent = parent;

@@ -22,7 +22,7 @@ shelf.prototype.add = function(obj) {
 			if(obj.outputs != undefined)
 				for(var i in obj.outputs)
 					node.addPoint(obj.outputs[i], 'out');
-			sthis.graph.addNode(50, 50, node);
+			sthis.graph.addNode(Math.floor(Math.random() * 400) + 20, Math.floor(Math.random() * 200) + 20, node);
 			if(sthis.focus != null)
 				node.focus(sthis.focus);
 			if(sthis.blur != null)
@@ -44,6 +44,8 @@ function ready() {
 	var properties = null;
 	var graph = new graphEditor('graph-editor', 640, 300, theme);
 	var cshelf = new shelf('shelf', graph);
+	var psystem = new particleSystem('c');
+	
 	cshelf.focus = function() {
 		notice.hide();
 	}
@@ -54,25 +56,66 @@ function ready() {
 	}
 	
 	cshelf.add({
-		name: 'Circle', 
-		inputs: ['Radius'], 
-		outputs: ['Particle'], 
+		name: 'Emitter', 
+		inputs: ['X', 'Y', 'Speed', 'Lifetime'], 
+		outputs: [], 
 		init: function(node) {
-			node.radius = 1.0;
+			node.x = 320;
+			node.y = 240;
+			node.speed = 1;
+			node.lifetime = 100;
+			var cemitter = psystem.add(new emitter(node.x, node.y, node.speed, 0, node.lifetime));
+			node.update(
+				function() {
+					cemitter.x = node.x;
+					cemitter.y = node.y;
+					cemitter.speed = node.speed;
+					cemitter.lifetime = node.lifetime;
+				}
+			);
 		}, 
 		focus: function(node) {
-			properties = $('#circle-properties').show();
-			$('#circle-radius').val(node.radius);
+			properties = $('#emitter-properties').show();
+			function setup(name) {
+				var jelem = $('#emitter-' + name);
+				jelem.val(node[name]);
+				jelem.unbind('change');
+				jelem.change(function() { node[name] = parseFloat(jelem.val()); node.update(); });
+			}
+			setup('x');
+			setup('y');
+			setup('speed');
+			setup('lifetime');
 		}
 	});
 	cshelf.add({
-		name: 'Cannon', 
-		inputs: ['Particle', 'Speed']
-	});
-	cshelf.add({
 		name: 'Attractor', 
-		inputs: ['Gravity']
+		inputs: ['X', 'Y', 'Gravity'], 
+		outputs: [], 
+		init: function(node) {
+			node.x = 320;
+			node.y = 240;
+			node.gravity = 1;
+			var cattractor = psystem.add(new attractor(node.x, node.y, node.gravity));
+			node.update(
+				function() {
+					cattractor.x = node.x;
+					cattractor.y = node.y;
+					cattractor.gravity = node.gravity;
+				}
+			);
+		}, 
+		focus: function(node) {
+			properties = $('#attractor-properties').show();
+			function setup(name) {
+				var jelem = $('#attractor-' + name);
+				jelem.val(node[name]);
+				jelem.unbind('change');
+				jelem.change(function() { node[name] = parseFloat(jelem.val()); node.update(); });
+			}
+			setup('x');
+			setup('y');
+			setup('gravity');
+		}
 	});
-	
-	var psystem = new particleSystem('c');
 }
