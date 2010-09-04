@@ -177,19 +177,19 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	
 	node.raphael = this.raphael;
 	node.parent = this;
-	node.focus(
-		function(node) {
+	node.focus.add(
+		function() {
 			if(sthis.selected != null)
 				sthis.selected.blur();
-			sthis.selected = node;
-			node.element.toFront();
-			node.element.attr('stroke-width', 3);
+			sthis.selected = this;
+			this.element.toFront();
+			this.element.attr('stroke-width', 3);
 		}
 	);
-	node.blur(
-		function(node) {
+	node.blur.add(
+		function() {
 			sthis.selected = null;
-			node.element.attr('stroke-width', 1);
+			this.element.attr('stroke-width', 1);
 		}
 	);
 	
@@ -199,9 +199,9 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	for(i in node.points) {
 		var point = node.points[i];
 		if(point.dir == 'out') continue;
-		point.circle = circle = this.raphael.circle(x+7.5, ly, 5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
+		point.circle = circle = this.raphael.circle(x+10, ly, 7.5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
 		this.rigConnections(point);
-		label = this.raphael.text(x+35, ly, point.label).attr({fill: '#000', 'font-size': 12}).toFront();
+		label = this.raphael.text(x+20, ly, point.label).attr({fill: '#000', 'font-size': 12}).xlateText().toFront();
 		bbox = label.getBBox();
 		ly += bbox.height + 5;
 		if(bbox.width > mx)
@@ -236,7 +236,7 @@ graphEditor.prototype.addNode = function(x, y, node) {
 	
 	for(i in labels) {
 		var label = labels[i];
-		label.point.circle = circle = this.raphael.circle(ex, ly, 5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
+		label.point.circle = circle = this.raphael.circle(ex, ly, 7.5).attr({stroke: '#000', fill: this.theme.pointInactive}).toFront();
 		this.rigConnections(label.point);
 		bbox = label.getBBox();
 		ly += bbox.height + 5;
@@ -291,60 +291,34 @@ function graphNode(id, title) {
 	this.title = title;
 	this.points = [];
 	
-	this.focusHooks = [];
-	this.blurHooks = [];
-	this.updateHooks = [];
-	this.removeHooks = [];
-	this.selected = false;
-	
-	return true;
-}
-
-graphNode.prototype.remove = function(hook) {
-	if(hook == undefined) {
+	this.focus = event().add(function() {
+		this.selected = true;
+	});
+	this.blur = event().add(function() {
+		this.selected = false;
+	});
+	this.connect = event();
+	this.disconnect = event();
+	this.update = event().add(function() {
+		this.selected = false;
+	});
+	this.remove = event().add(function() {
 		if(this.selected)
 			this.blur();
 		this.element.remove();
 		for(var i in this.points)
 			this.points[i].remove(this.raphael);
-		for(var i in this.removeHooks)
-			this.removeHooks[i](this);
-	} else
-		this.removeHooks.push(hook);
-};
+	});
+	this.selected = false;
+	
+	return true;
+}
 
 graphNode.prototype.addPoint = function(label, dir, multi) {
 	var npoint = this[label] = new point(this, label, dir, multi);
 	this.points.push(npoint);
 	return this;
 };
-
-graphNode.prototype.focus = function(hook) {
-	if(hook == undefined) {
-		this.selected = true;
-		for(var i in this.focusHooks)
-			this.focusHooks[i](this);
-	} else
-		this.focusHooks.push(hook);
-};
-
-graphNode.prototype.blur = function(hook) {
-	if(hook == undefined) {
-		this.selected = false;
-		for(var i in this.blurHooks)
-			this.blurHooks[i](this);
-	} else
-		this.blurHooks.push(hook);
-};
-
-graphNode.prototype.update = function(hook) {
-	if(hook == undefined) {
-		this.selected = false;
-		for(var i in this.updateHooks)
-			this.updateHooks[i](this);
-	} else
-		this.updateHooks.push(hook);
-}
 
 function point(parent, label, dir, multi) {
 	this.parent = parent;
@@ -393,6 +367,8 @@ point.prototype.connect = function(raphael, other, sub) {
 		other.lines.push(line);
 	}
 	
+	this.parent.connect(this, other);
+	
 	return true;
 };
 
@@ -411,6 +387,8 @@ point.prototype.removeConnection = function(raphael, other, sub) {
 	
 	if(this.connections.length == 0)
 		this.circle.attr({fill: editor.theme.pointInactive});
+	
+	this.parent.disconnect(this, other);
 };
 
 point.prototype.fixConnections = function(raphael) {

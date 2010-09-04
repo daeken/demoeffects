@@ -110,6 +110,8 @@ $(document).ready(
 						psystem.remove(cemitter);
 					}
 				);
+				node.connect(function() { node.focus(); });
+				node.disconnect(function() { node.focus(); });
 			}, 
 			focus: function(node) {
 				properties = $('#emitter-properties').show();
@@ -190,6 +192,7 @@ $(document).ready(
 		cshelf.build('Emitter', 150, 350, 1, 150, 'rgba(255, 0, 0, 0.75)');
 		cshelf.build('Emitter', 320, 240, 1, 100, 'rgba(0, 0, 255, 0.75)');
 		cshelf.build('Attractor', 300, 200, 1);
+		cshelf.build('Evaluator', 'Math.random()*10');
 		
 		var startStop = $('#startStop');
 		function start() {
