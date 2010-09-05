@@ -9,6 +9,7 @@ PI = Math.PI;
 function gear(r, a, b, slope, h) {
 	points = [];
 	
+	a += b + slope * 2;
 	b += slope;
 	
 	steps = 360;
@@ -149,9 +150,34 @@ function pointsToPath(points) {
 	return raphael.path(path);
 }
 
-function drawTris(points) {
+function localizedTranslate(x, y) {
+	this.ox += x;
+	this.oy += y;
+	return this.origTranslate(x, y);
+}
+function localizedRotate(degrees, absolute) {
+	this.rotation += degrees;
+	for(var i in this.items) {
+		var item = this.items[i];
+		item.rotate(this.rotation, this.ox, this.oy);
+	}
+	
+	return this;
+}
+
+Raphael.fn.localizedSet = function() {
+	var set = this.set();
+	set.rotation = 0;
+	set.ox = set.oy = 0;
+	set.rotate = localizedRotate;
+	set.origTranslate = set.translate;
+	set.translate = localizedTranslate;
+	return set;
+}
+
+function pointsToTris(points) {
 	var tris = tesselate(points);
-	var set = raphael.set();
+	var set = raphael.localizedSet();
 	
 	console.log(tris.length);
 	for(var i in tris) {
@@ -169,10 +195,11 @@ function frame() {
 
 $(document).ready(function() {
 	raphael = Raphael(0, 0, 640, 480);
-	var gear1 = gear(50, 20, 10, 2, 10);
+	var gear1 = gear(50, 10, 10, 2, 10);
 	objects = raphael.set().push(
 		pointsToPath(gear1).translate(100, 100), 
-		drawTris(gear1).translate(200, 200)
+		pointsToTris(gear1).translate(300, 100), 
+		pointsToTris(gear1).translate(300, 300).attr({fill: '#000'})
 	);
 	
 	setInterval(frame, 1000 / 60);
